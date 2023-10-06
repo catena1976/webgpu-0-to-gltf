@@ -36,7 +36,9 @@ import shaderCode from "./triangle.wgsl";
     // Specify vertex data
     // Allocate room for the vertex data: 3 vertices, each with 2 float4's
     var dataBuf = device.createBuffer(
-        {size: 3 * 2 * 4 * 4, usage: GPUBufferUsage.VERTEX, mappedAtCreation: true});
+        {   size: 3 * 2 * 4 * 4, 
+            usage: GPUBufferUsage.VERTEX, 
+            mappedAtCreation: true});
 
     // Interleaved positions and colors
     new Float32Array(dataBuf.getMappedRange()).set([
@@ -67,11 +69,17 @@ import shaderCode from "./triangle.wgsl";
     // Setup render outputs
     var swapChainFormat = "bgra8unorm";
     context.configure(
-        {device: device, format: swapChainFormat, usage: GPUTextureUsage.RENDER_ATTACHMENT});
+        {   device: device, 
+            format: swapChainFormat, 
+            usage: GPUTextureUsage.RENDER_ATTACHMENT
+        });
 
     var depthFormat = "depth24plus-stencil8";
     var depthTexture = device.createTexture({
-        size: {width: canvas.width, height: canvas.height, depthOrArrayLayers: 1},
+        size: {
+            width: canvas.width, 
+            height: canvas.height, 
+            depthOrArrayLayers: 1},
         format: depthFormat,
         usage: GPUTextureUsage.RENDER_ATTACHMENT
     });
@@ -91,7 +99,10 @@ import shaderCode from "./triangle.wgsl";
         layout: layout,
         vertex: vertexState,
         fragment: fragmentState,
-        depthStencil: {format: depthFormat, depthWriteEnabled: true, depthCompare: "less"}
+        depthStencil: {
+            format: depthFormat, 
+            depthWriteEnabled: true, 
+            depthCompare: "less"}
     });
 
     var renderPassDesc = {
@@ -112,22 +123,36 @@ import shaderCode from "./triangle.wgsl";
         }
     };
 
-    var animationFrame = function () {
-        var resolve = null;
-        var promise = new Promise(r => resolve = r);
-        window.requestAnimationFrame(resolve);
-        return promise
-    };
-    requestAnimationFrame(animationFrame);
+    // var animationFrame = function () {
+    //     var resolve = null;
+    //     var promise = new Promise(r => resolve = r);
+    //     window.requestAnimationFrame(resolve);
+    //     return promise
+    // };
+
+    // requestAnimationFrame(animationFrame);
 
     // Render!
-    while (true) {
-        await animationFrame();
+    // while (true) {
+    //     await animationFrame();
 
+    //     renderPassDesc.colorAttachments[0].view = context.getCurrentTexture().createView();
+
+    //     var commandEncoder = device.createCommandEncoder();
+
+    //     var renderPass = commandEncoder.beginRenderPass(renderPassDesc);
+
+    //     renderPass.setPipeline(renderPipeline);
+    //     renderPass.setVertexBuffer(0, dataBuf);
+    //     renderPass.draw(3, 1, 0, 0);
+
+    //     renderPass.end();
+    //     device.queue.submit([commandEncoder.finish()]);
+    // }
+
+    function render() {
         renderPassDesc.colorAttachments[0].view = context.getCurrentTexture().createView();
-
         var commandEncoder = device.createCommandEncoder();
-
         var renderPass = commandEncoder.beginRenderPass(renderPassDesc);
 
         renderPass.setPipeline(renderPipeline);
@@ -136,5 +161,11 @@ import shaderCode from "./triangle.wgsl";
 
         renderPass.end();
         device.queue.submit([commandEncoder.finish()]);
+
+        requestAnimationFrame(render);
     }
+
+    requestAnimationFrame(render);  
+
+    console.log("WebGPU initialized!");
 })();
